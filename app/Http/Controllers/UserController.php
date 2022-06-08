@@ -42,7 +42,27 @@ class UserController extends Controller
         if (!$user || !Hash::check($request->password, $user->password)) {
             return response(['failure' => 'Credentials doesnot match.']);
         } else {
-            return response(['success' => 'Logged in Successfully.']);
+
+            // generate token
+            $token = $user->createToken($request->email);
+            return response([
+                'success' => 'Logged in Successfully.',
+                'token' => $token->plainTextToken
+            ]);
+        }
+    }
+
+    public function signout(Request $request)
+    {
+        $info = $request->user()->tokens()->delete();
+        if ($info) {
+            return response([
+                'success' => 'Logged Out Successfully.'
+            ]);
+        } else {
+            return response([
+                'failure' => 'Something went wrong.'
+            ]);
         }
     }
 }
